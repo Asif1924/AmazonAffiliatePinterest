@@ -1,0 +1,422 @@
+1) Google Sheet: structure (copy exactly)
+
+Create a sheet named Products with these columns (row 1 headers):
+
+A) Core product fields
+
+A: ProductID (unique)
+
+B: Niche (electronics | home/kitchen | tools | fitness | cars | computer accessories)
+
+C: ProductName
+
+D: Brand
+
+E: KeyBenefit (1 short sentence)
+
+F: TopFeatures (3–5 features; separate with ;)
+
+G: IdealFor (who it’s for / use case)
+
+H: Keywords (8–15 keywords; separate with ,)
+
+I: PriceBand (budget | mid | premium) (optional but useful)
+
+B) Compliance + linking
+
+J: AmazonAffiliateURL (your direct-to-Amazon associate link)
+
+K: DisclosureLine
+Put this exact line (same for every row):
+As an Amazon Associate I earn from qualifying purchases. #ad
+
+C) Creative generation controls
+
+L: Angle (pick one: Problem/Solution | Upgrade | Gift | Comparison | Quick Tip)
+
+M: HookStyle (pick one: Question | Bold Claim | “Stop Doing This” | “3 Things” | “Best For”)
+
+N: TemplateID (T1–T5 to rotate designs)
+
+O: BackgroundTheme (clean | tech | kitchen | gym | garage | car)
+
+P: Status (READY | USED | PAUSED)
+
+Q: LastUsedDate
+
+R: Priority (1–5)
+
+D) Output fields (generated)
+
+S: PinTitle
+
+T: PinHookOverlay
+
+U: PinDescription
+
+V: BoardName
+
+W: CanvaImageName (e.g., 2026-01-05_T1_ProductID123.png)
+
+2) Board mapping (simple + effective)
+
+Create a second sheet named Boards:
+
+A: Niche
+
+B: BoardName
+
+Example mapping:
+
+electronics → Smart Electronics Finds
+
+home/kitchen → Kitchen Upgrades & Must-Haves
+
+tools → Tools That Save Time
+
+fitness → Home Gym Essentials
+
+cars → Car Accessories & Upgrades
+
+computer accessories → Desk Setup & Accessories
+
+3) 3–5 high-converting pin template text formulas (Google Sheets)
+
+These are plug-and-play formulas for columns S/T/U (Title/Hook/Description).
+They create good defaults even before you use AI.
+
+Formula 1 — “Problem → Solution” Hook Overlay (Column T)
+
+Put in T2:
+=IF(C2="","",
+IF(M2="Question",
+"Still dealing with " & LOWER(REGEXREPLACE(SPLIT(H2,",",TRUE,TRUE),"\s+$","")) & "?",
+IF(M2="Bold Claim",
+"Fix this in 5 minutes",
+IF(M2="Stop Doing This",
+"Stop struggling with this",
+IF(M2="3 Things",
+"3 reasons you’ll love this",
+"Best pick for " & G2
+)))))
+
+
+Formula 2 — SEO-ish Pin Title (Column S)
+
+Put in S2:
+=IF(C2="","",
+C2 & " — " &
+IF(L2="Upgrade","Easy upgrade for ","Best pick for ") &
+G2
+)
+
+
+Formula 3 — Pinterest description with value + keywords + disclosure (Column U)
+
+Put in U2:
+=IF(C2="","",
+"Why it’s worth it: " & E2 & " Features: " & SUBSTITUTE(F2,";"," • ") &
+". Great for: " & G2 &
+". Keywords: " & H2 &
+" " & K2
+)
+
+Formula 4 — Pick BoardName via lookup (Column V)
+
+Put in V2:
+=IF(B2="","",
+IFERROR(VLOOKUP(B2,Boards!A:B,2,FALSE),"General Finds")
+)
+
+Formula 5 — Image filename convention (Column W)
+
+Put in W2:
+=IF(A2="","",
+TEXT(TODAY(),"yyyy-mm-dd") & "_" & N2 & "_" & A2 & ".png"
+)
+
+4) Canva Bulk Create CSV format (what Canva needs)
+
+Your Canva template should have text placeholders named like:
+
+{{HOOK}}
+
+{{TITLE}}
+
+{{SUBTITLE}} (optional)
+
+{{DESC}} (optional small text)
+
+{{URL}}
+
+{{FILENAME}}
+
+Your CSV header should match these exactly:
+
+HOOK,TITLE,SUBTITLE,DESC,URL,FILENAME,BOARD
+
+5) Reusable AI prompt that outputs Canva Bulk Create CSV (10 products)
+
+Copy/paste this prompt into your AI tool daily.
+(Or your Python script will send it automatically.)
+
+SYSTEM / INSTRUCTIONS
+You are a Pinterest performance copywriter for Amazon affiliate pins.
+Output must be valid CSV, comma-separated, UTF-8, with a header row and exactly 10 data rows.
+Quote fields with double quotes and escape inner quotes by doubling them.
+No markdown. No commentary.
+Every DESC must end with: As an Amazon Associate I earn from qualifying purchases. #ad
+
+GOAL
+For each product, create:
+
+HOOK (3–7 words, punchy, not spammy, no ALL CAPS)
+
+TITLE (40–70 chars, keyword-rich)
+
+SUBTITLE (optional, 25–45 chars)
+
+DESC (1–2 short sentences + 5–10 keywords + disclosure line)
+
+URL (use provided affiliate URL exactly)
+
+FILENAME (use provided filename exactly)
+
+BOARD (use provided board exactly)
+
+CONSTRAINTS
+
+Do NOT claim “best”, “#1”, or “guaranteed results” unless the input explicitly states it.
+
+Avoid medical claims (especially for fitness items).
+
+Avoid pricing claims unless input includes a price.
+
+Keep it helpful: include a use-case tip in DESC.
+
+INPUT PRODUCTS (10)
+For each product you will receive:
+ProductName | Niche | KeyBenefit | TopFeatures | IdealFor | Keywords | TemplateID | Board | AffiliateURL | Filename
+
+NOW GENERATE CSV
+Header: HOOK,TITLE,SUBTITLE,DESC,URL,FILENAME,BOARD
+Then 10 rows, in the same order as inputs.
+
+Then paste your 10 selected products under “INPUT PRODUCTS”.
+
+6) Python script outline: generate a fresh 10-row CSV daily
+
+This outline assumes:
+
+Your source data is a Google Sheet (or you can export CSV)
+
+You pick 10 READY products, weighted by Priority, avoiding recent repeats
+
+You call an LLM (any provider) to produce the final CSV
+
+You save output to a folder like ./daily_csv/
+
+High-level flow
+
+Load products from Google Sheets (or local CSV)
+
+Filter: Status == READY and not used in X days
+
+Select 10 products (by priority + random)
+
+Build the “INPUT PRODUCTS (10)” block
+
+Call LLM with the prompt above
+
+Validate CSV (10 rows, required columns)
+
+Save file: canva_bulk_YYYY-MM-DD.csv
+
+Update sheet: set selected rows to USED, update LastUsedDate
+
+Python outline (pseudo-code + structure)
+
+"""
+daily_canva_csv.py
+
+Generates a Canva Bulk Create CSV with 10 products/day for Pinterest.
+- Reads product rows from Google Sheets (or local CSV)
+- Uses an LLM to generate HOOK/TITLE/SUBTITLE/DESC
+- Writes a validated CSV for Canva
+- Marks used products in the sheet
+"""
+
+import csv
+import datetime as dt
+import random
+from dataclasses import dataclass
+from typing import List, Dict
+
+# --------- CONFIG ----------
+SHEET_ID = "YOUR_GOOGLE_SHEET_ID"
+WORKSHEET_PRODUCTS = "Products"
+WORKSHEET_BOARDS = "Boards"
+
+OUT_DIR = "./daily_csv"
+DAILY_COUNT = 10
+COOLDOWN_DAYS = 14  # don't reuse same product within last N days
+
+# LLM config (provider-agnostic)
+LLM_MODEL = "YOUR_MODEL_NAME"
+LLM_API_KEY = "YOUR_KEY"
+
+# --------- DATA MODEL ----------
+@dataclass
+class Product:
+    product_id: str
+    niche: str
+    name: str
+    key_benefit: str
+    features: str
+    ideal_for: str
+    keywords: str
+    template_id: str
+    board: str
+    url: str
+    filename: str
+    status: str
+    last_used_date: str
+    priority: int
+
+# --------- HELPERS ----------
+def today_str() -> str:
+    return dt.date.today().isoformat()
+
+def parse_date(s: str):
+    if not s:
+        return None
+    try:
+        return dt.datetime.strptime(s, "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+def eligible(p: Product) -> bool:
+    if p.status != "READY":
+        return False
+    last = parse_date(p.last_used_date)
+    if last and (dt.date.today() - last).days < COOLDOWN_DAYS:
+        return False
+    return True
+
+def weighted_sample(products: List[Product], k: int) -> List[Product]:
+    # weight by priority (1–5). Higher = more likely.
+    weights = [max(1, p.priority) for p in products]
+    chosen = []
+    pool = products[:]
+    pool_w = weights[:]
+    for _ in range(min(k, len(pool))):
+        pick = random.choices(pool, weights=pool_w, k=1)[0]
+        idx = pool.index(pick)
+        chosen.append(pick)
+        pool.pop(idx)
+        pool_w.pop(idx)
+    return chosen
+
+# --------- GOOGLE SHEETS (choose one approach) ----------
+def load_products_from_google_sheets() -> List[Product]:
+    """
+    Use google-api-python-client or gspread to pull rows.
+    Return List[Product].
+    """
+    raise NotImplementedError
+
+def update_products_used_in_sheet(product_ids: List[str]):
+    """
+    Update Status=USED and LastUsedDate=today in Google Sheet.
+    """
+    raise NotImplementedError
+
+# --------- LLM CALL (provider-agnostic) ----------
+def build_llm_prompt(selected: List[Product]) -> str:
+    # build the reusable prompt + the INPUT PRODUCTS block
+    lines = []
+    # Put the prompt template here (from section 5),
+    # then append each product as:
+    # ProductName | Niche | KeyBenefit | TopFeatures | IdealFor | Keywords | TemplateID | Board | AffiliateURL | Filename
+    for p in selected:
+        lines.append(
+            f"{p.name} | {p.niche} | {p.key_benefit} | {p.features} | {p.ideal_for} | "
+            f"{p.keywords} | {p.template_id} | {p.board} | {p.url} | {p.filename}"
+        )
+    # return full prompt string
+    return FULL_PROMPT_TEMPLATE.replace("<<INPUT_PRODUCTS>>", "\n".join(lines))
+
+def call_llm(prompt: str) -> str:
+    """
+    Call your LLM provider; return raw text.
+    Must return CSV text.
+    """
+    raise NotImplementedError
+
+# --------- CSV VALIDATION ----------
+REQUIRED_COLUMNS = ["HOOK","TITLE","SUBTITLE","DESC","URL","FILENAME","BOARD"]
+
+def validate_csv_text(csv_text: str) -> List[Dict[str, str]]:
+    """
+    Parse CSV text. Ensure header includes required columns and exactly 10 rows.
+    Ensure URL/FILENAME/BOARD are present per row.
+    Return parsed rows.
+    """
+    rows = []
+    reader = csv.DictReader(csv_text.splitlines())
+    header = reader.fieldnames or []
+    for col in REQUIRED_COLUMNS:
+        if col not in header:
+            raise ValueError(f"Missing column: {col}")
+
+    for r in reader:
+        rows.append(r)
+
+    if len(rows) != DAILY_COUNT:
+        raise ValueError(f"Expected {DAILY_COUNT} rows, got {len(rows)}")
+
+    for r in rows:
+        if not r["URL"].startswith("http"):
+            raise ValueError("Bad URL in row")
+        if not r["FILENAME"]:
+            raise ValueError("Missing filename")
+        if not r["BOARD"]:
+            raise ValueError("Missing board")
+        if "As an Amazon Associate I earn from qualifying purchases." not in r["DESC"]:
+            raise ValueError("Missing required disclosure line")
+
+    return rows
+
+def write_csv_file(rows: List[Dict[str,str]], path: str):
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=REQUIRED_COLUMNS, quoting=csv.QUOTE_ALL)
+        w.writeheader()
+        w.writerows(rows)
+
+# --------- MAIN ----------
+def main():
+    products = load_products_from_google_sheets()
+    pool = [p for p in products if eligible(p)]
+    if len(pool) < DAILY_COUNT:
+        raise RuntimeError("Not enough eligible READY products to select 10.")
+
+    selected = weighted_sample(pool, DAILY_COUNT)
+
+    prompt = build_llm_prompt(selected)
+    llm_csv = call_llm(prompt)
+
+    parsed = validate_csv_text(llm_csv)
+
+    out_path = f"{OUT_DIR}/canva_bulk_{today_str()}.csv"
+    write_csv_file(parsed, out_path)
+
+    update_products_used_in_sheet([p.product_id for p in selected])
+
+if __name__ == "__main__":
+    main()
+
+Scheduling (daily)
+
+Windows Task Scheduler: run python daily_canva_csv.py every day at your chosen time
+
+Mac/Linux cron: 0 9 * * * /usr/bin/python3 /path/daily_canva_csv.py
