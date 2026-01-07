@@ -1,0 +1,24 @@
+# Google Sheets API
+google-auth==2.27.0
+google-auth-oauthlib==1.2.0
+google-auth-httplib2==0.2.0
+gspread==6.0.0
+
+# LLM Providers
+openai==1.12.0
+anthropic==0.18.1
+google-generativeai==0.3.2
+
+# HTTP and API utilities
+requests==2.31.0
+httpx==0.26.0
+
+# Data handling
+python-dotenv==1.0.1
+
+# Logging and utilities
+colorlog==6.8.2
+
+# Date and time
+python-dateutil==2.8.2
+
