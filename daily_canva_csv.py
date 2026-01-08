@@ -147,7 +147,11 @@ def main():
         logger.info(f"Calling LLM ({config.LLM_PROVIDER})...")
         llm_client = LLMClient(config.LLM_PROVIDER)
         csv_text = llm_client.generate_csv(prompt)
-        
+
+        # Debug: Log the raw CSV response
+        logger.debug("Raw LLM CSV response:")
+        logger.debug(csv_text[:500] + "..." if len(csv_text) > 500 else csv_text)
+
         # Validate CSV
         logger.info("Validating CSV output...")
         validator = CSVValidator(config.REQUIRED_CSV_COLUMNS, config.REQUIRED_DISCLOSURE)

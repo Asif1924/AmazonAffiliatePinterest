@@ -75,11 +75,17 @@ class CSVValidator:
             header = reader.fieldnames
             if not header:
                 raise ValueError("CSV has no header row")
-            
+
+            logger.debug(f"CSV header found: {header}")
+            logger.debug(f"Required columns: {self.required_columns}")
+
             # Validate required columns
             missing = set(self.required_columns) - set(header)
             if missing:
-                raise ValueError(f"Missing required columns: {', '.join(missing)}")
+                raise ValueError(
+                    f"Missing required columns: {', '.join(sorted(missing))}. "
+                    f"Found columns: {', '.join(header)}"
+                )
             
             # Parse rows
             rows = list(reader)
