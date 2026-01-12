@@ -149,8 +149,12 @@ def main():
         csv_text = llm_client.generate_csv(prompt)
 
         # Debug: Log the raw CSV response
-        logger.debug("Raw LLM CSV response:")
-        logger.debug(csv_text[:500] + "..." if len(csv_text) > 500 else csv_text)
+        logger.debug("="*60)
+        logger.debug("Raw LLM CSV response (full):")
+        logger.debug("="*60)
+        logger.debug(csv_text)
+        logger.debug("="*60)
+        logger.debug(f"Response length: {len(csv_text)} characters")
 
         # Validate CSV
         logger.info("Validating CSV output...")

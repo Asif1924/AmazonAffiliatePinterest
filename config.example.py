@@ -59,7 +59,8 @@ LOG_FILE = "./logs/pinterest_automation.log"
 LLM_TEMPERATURE = 0.7
 
 # Maximum tokens for LLM response
-LLM_MAX_TOKENS = 2000
+# Increased to 6000 to accommodate 10 products with long Amazon URLs
+LLM_MAX_TOKENS = 6000
 
 # Timeout for LLM API calls (seconds)
 LLM_TIMEOUT = 60

@@ -82,9 +82,12 @@ class CSVValidator:
             # Validate required columns
             missing = set(self.required_columns) - set(header)
             if missing:
+                # Show first 500 chars of CSV for debugging
+                csv_preview = csv_text[:500] if len(csv_text) > 500 else csv_text
                 raise ValueError(
                     f"Missing required columns: {', '.join(sorted(missing))}. "
-                    f"Found columns: {', '.join(header)}"
+                    f"Found columns: {', '.join(header)}\n\n"
+                    f"CSV Preview:\n{csv_preview}"
                 )
             
             # Parse rows
