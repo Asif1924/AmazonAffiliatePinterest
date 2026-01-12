@@ -77,9 +77,13 @@ python3 daily_canva_csv.py
 
 1. Go to Canva
 2. Create a Pinterest Pin (1000 x 1500 px)
-3. Add text placeholders: `{{HOOK}}`, `{{TITLE}}`, `{{SUBTITLE}}`, `{{DESC}}`
+3. Add text placeholders by clicking on "Text" in the left sidebar, then add text boxes and type:
+   - `{{HOOK}}` - Main attention-grabbing headline (large, bold text at top)
+   - `{{TITLE}}` - Product title or secondary headline
+   - `{{SUBTITLE}}` - Supporting text or benefit statement
+   - `{{DESC}}` - Additional description or call-to-action
 4. Design 5 templates (T1-T5) with different styles
-5. Save each template
+5. Save each template: Click the "Share" button (top right) → "Template link" → "Create template" (or simply save the design and use it directly for Bulk Create)
 
 ### 7. Generate Your First Pins (3 minutes)
 
